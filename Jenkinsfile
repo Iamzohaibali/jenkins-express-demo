@@ -2,23 +2,24 @@ pipeline {
 agent any
 
 stages {
-    stage('Install') {
+    stage('Build Docker Image') {
         steps {
-            sh 'npm install'
+            sh 'docker build -t express-app .'
         }
     }
 
-    stage('Stop Old App') {
+    stage('Stop Old Container') {
         steps {
             sh '''
-            pkill -f "node index.js" || true
+            docker stop express-container || true
+            docker rm express-container || true
             '''
         }
     }
 
-    stage('Run App') {
+    stage('Run Container') {
         steps {
-            sh 'nohup node index.js > app.log 2>&1 &'
+            sh 'docker run -d -p 3000:3000 --name express-container express-app'
         }
     }
 }
